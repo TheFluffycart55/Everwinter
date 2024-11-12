@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column_horizontal",
+  "textures": {
+    "end": "everwinter:block/snow_machine_top",
+    "side": "everwinter:block/snow_machine_side"
+  }
+}

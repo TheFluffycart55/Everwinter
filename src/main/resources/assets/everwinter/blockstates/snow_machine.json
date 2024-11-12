@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "axis=x,powered=false": {
+      "model": "everwinter:block/snow_machine_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,powered=false": {
+      "model": "everwinter:block/snow_machine"
+    },
+    "axis=z,powered=false": {
+      "model": "everwinter:block/snow_machine_horizontal",
+      "x": 90
+    },
+    "axis=x,powered=true": {
+      "model": "everwinter:block/snow_machine_horizontal_on",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,powered=true": {
+      "model": "everwinter:block/snow_machine_on"
+    },
+    "axis=z,powered=true": {
+      "model": "everwinter:block/snow_machine_horizontal_on",
+      "x": 90
+    }
+  }
+}
