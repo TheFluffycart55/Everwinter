@@ -27,35 +27,25 @@ public class SnowMachineBlock extends PillarBlock {
 
     public SnowMachineBlock(Settings settings) {
         super(settings);
-        this.setDefaultState((BlockState)this.getDefaultState().with(AXIS, Direction.Axis.Y));
-        this.setDefaultState((BlockState)this.getDefaultState().with(POWERED, Boolean.FALSE));
-
+        this.setDefaultState(this.getDefaultState().with(AXIS, Direction.Axis.Y));
+        this.setDefaultState(this.getDefaultState().with(POWERED, Boolean.valueOf(false)));
     }
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState().with(POWERED, Boolean.valueOf(ctx.getWorld().isReceivingRedstonePower(ctx.getBlockPos())));
+        this.getDefaultState().with(POWERED, Boolean.valueOf(ctx.getWorld().isReceivingRedstonePower(ctx.getBlockPos())));
+        return this.getDefaultState().with(AXIS, ctx.getSide().getAxis());
+
     }
 
     @Override
-    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        if (!world.isClient) {
-            boolean bl = (Boolean)state.get(POWERED);
-                if (bl) {
-                    world.scheduleBlockTick(pos, this, 0);
-                } else {
-                    world.setBlockState(pos, state.cycle(POWERED), Block.NOTIFY_LISTENERS);
-                }
-            }
-    }
-
     public MapCodec<? extends PillarBlock> getCodec() {
         return CODEC;
     }
 
     @Override
     protected BlockState rotate(BlockState state, BlockRotation rotation) {
-        return PillarBlock.changeRotation(state, rotation);
+        return changeRotation(state, rotation);
     }
 
     public void getBlockBelowBounds(World world, BlockPos pos, BlockState state)
@@ -79,39 +69,27 @@ public class SnowMachineBlock extends PillarBlock {
     public static BlockState changeRotation(BlockState state, BlockRotation rotation) {
         switch (rotation) {
             case COUNTERCLOCKWISE_90:
-            case CLOCKWISE_90: {
-                switch (state.get(AXIS)) {
-                    case X: {
-                        return (BlockState)state.with(AXIS, Direction.Axis.Z);
-                    }
-                    case Z: {
-                        return (BlockState)state.with(AXIS, Direction.Axis.X);
-                    }
+            case CLOCKWISE_90:
+                switch ((Direction.Axis)state.get(AXIS)) {
+                    case X:
+                        return state.with(AXIS, Direction.Axis.Z);
+                    case Z:
+                        return state.with(AXIS, Direction.Axis.X);
+                    default:
+                        return state;
                 }
+            default:
                 return state;
-            }
         }
-        return state;
-    }
-
-    private static void setPowered(World world, BlockPos pos, BlockState state, boolean powered) {
-        world.setBlockState(pos, state.with(POWERED, Boolean.valueOf(powered)), Block.NOTIFY_ALL);
-        updateNeighborAlways(world, pos, state);
-    }
-
-    private static void updateNeighborAlways(World world, BlockPos pos, BlockState state) {
-        world.updateNeighborsAlways(pos.down(), state.getBlock());
     }
 
     @Override
-    protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (!state.isOf(newState.getBlock())) {
-            super.onStateReplaced(state, world, pos, newState, moved);
-            if ((Boolean)state.get(POWERED)) {
-                world.updateNeighborsAlways(pos.down(), this);
-            }
+    protected void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+        if ((Boolean)state.get(POWERED) && !world.isReceivingRedstonePower(pos)) {
+            world.setBlockState(pos, state.cycle(POWERED), Block.NOTIFY_LISTENERS);
         }
     }
+
     @Override
     public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
         int i = pos.getX();
@@ -121,39 +99,43 @@ public class SnowMachineBlock extends PillarBlock {
         double e = (double)j + 0.7;
         double f = (double)k + random.nextDouble();
         BlockPos.Mutable mutable = new BlockPos.Mutable();
+        boolean bl = (Boolean)state.get(POWERED);
+        getBlockBelowBounds(world, pos, state);
         for (int l = 0; l < 12; l++) {
-            mutable.set(i + MathHelper.nextInt(random, -blowableBound, blowableBound), j - random.nextInt(blowableBound), k + MathHelper.nextInt(random, -blowableBound, blowableBound));
-            BlockState blockState = world.getBlockState(mutable);
-            getBlockBelowBounds(world, pos, state);
+            if(bl != world.isReceivingRedstonePower(pos))
+            {
+                mutable.set(i + MathHelper.nextInt(random, -blowableBound, blowableBound), j - random.nextInt(blowableBound), k + MathHelper.nextInt(random, -blowableBound, blowableBound));
+                BlockState blockState = world.getBlockState(mutable);
+                if (!blockState.isFullCube(world, mutable) && blowableBound > 4) {
+                    world.addParticle(ParticleTypes.SNOWFLAKE, d, e, f, 0.0, 0.0, 0.0);
+                    world.addParticle(
+                            ParticleTypes.SNOWFLAKE,
+                            (double)mutable.getX() + random.nextDouble(),
+                            (double)mutable.getY() + random.nextDouble(),
+                            (double)mutable.getZ() + random.nextDouble(),
+                            0.0,
+                            -0.01f,
+                            0.0
+
+                    );
+                }
+                else
+                {
                     if (!blockState.isFullCube(world, mutable)) {
-                        world.addParticle(ParticleTypes.WHITE_ASH, d, e, f, 0.0, 0.0, 0.0);
                         world.addParticle(
-                                ParticleTypes.SNOWFLAKE,
+                                ParticleTypes.SMOKE,
                                 (double)mutable.getX() + random.nextDouble(),
                                 (double)mutable.getY() + random.nextDouble(),
                                 (double)mutable.getZ() + random.nextDouble(),
                                 0.0,
                                 -0.01f,
                                 0.0
-
                         );
                     }
-                    else
-                    {
-                        if (!blockState.isFullCube(world, mutable)) {
-                            world.addParticle(
-                                    ParticleTypes.SMOKE,
-                                    (double)mutable.getX() + random.nextDouble(),
-                                    (double)mutable.getY() + random.nextDouble(),
-                                    (double)mutable.getZ() + random.nextDouble(),
-                                    0.0,
-                                    -0.01f,
-                                    0.0
-                            );
-                        }
                 }
             }
         }
+    }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {

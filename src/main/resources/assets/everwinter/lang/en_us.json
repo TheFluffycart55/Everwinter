@@ -1,0 +1,13 @@
+{
+  "item.everwinter.frozen_tusk": "Frozen Tusk",
+  "item.everwinter.snow_blower": "Snow Blower",
+  "item.everwinter.iceologer_spawn_egg": "Iceologer Spawn Egg",
+
+  "block.everwinter.dry_ice": "Dry Ice",
+  "block.everwinter.snow_machine": "Snow Machine",
+  "block.everwinter.snow_globe": "Snow Globe",
+
+  "entity.everwinter.iceologer": "Iceologer",
+
+  "itemgroup.everwinter": "Everwinter"
+}

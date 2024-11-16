@@ -48,7 +48,7 @@ public class IceologerEntity extends SpellcastingIllagerEntity {
         this.goalSelector.add(1, new IceologerEntity.LookAtTargetOrWololoTarget());
         this.goalSelector.add(2, new FleeEntityGoal(this, PlayerEntity.class, 6.0F, 0.6, 1.0));
         this.goalSelector.add(5, new IceologerEntity.ConjureFangsGoal());
-        this.goalSelector.add(6, new IceologerEntity.WololoGoal());
+        this.goalSelector.add(5, new IceologerEntity.WololoGoal());
         this.goalSelector.add(8, new WanderAroundGoal(this, 0.6));
         this.goalSelector.add(9, new LookAtEntityGoal(this, PlayerEntity.class, 3.0F, 1.0F));
         this.goalSelector.add(10, new LookAtEntityGoal(this, MobEntity.class, 8.0F));
